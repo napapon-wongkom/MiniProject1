@@ -9,8 +9,9 @@
 #define STEP_PIN_4 16
 //////////////////////////////////////////////////////////////////////////////
 //Variable Zone//
-String Key = "";  
+//String Key = "";   -----------------Doesn't use
 int mem=0;
+/// MQTT SETUP VAR /////////////////////////////////////////////////////////
 const char ssid[] = "Dxt-iphone";
 const char pass[] = "magicwireless";
 
