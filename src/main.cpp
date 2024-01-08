@@ -2,6 +2,8 @@
 #include <WiFi.h>
 #include <MQTT.h>
 #include <string.h>
+#include <LCD_I2C.h>
+LCD_I2C lcd(0x27, 16, 2);
 //////////////////////////////////////////////////////////////////////////////
 #define STEP_PIN_1 19
 #define STEP_PIN_2 18
@@ -11,9 +13,9 @@
 //Variable Zone//
 //String Key = "";   -----------------Doesn't use!
 int mem=0;
-/// MQTT SETUP VAR /////////////////////////////////////////////////////////
-const char ssid[] = "Dxt-iphone";
-const char pass[] = "magicwireless";
+/// MQTT SETUP VAR////////////////////////////////////////////////////////////
+const char ssid[] = "Imyourjay";
+const char pass[] = "aleecha0909";
 
 const char mqtt_broker[]="test.mosquitto.org";
 const char mqtt_topic[]="group1.43/control";
@@ -25,20 +27,25 @@ WiFiClient net;
 MQTTClient client;
 /////////////////////////////////////////////////////////////////////////////
 void connect() {
+  lcd.clear();
+  lcd.println("checking wifi...");
   Serial.print("checking wifi...");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(1000);
   }
 
+  lcd.clear();
   Serial.print("\nconnecting...");
+  lcd.print("connecting...");
   while (!client.connect(mqtt_client_id)) {  
     Serial.print(".");
     delay(1000);
   }
 
+  lcd.clear();
   Serial.println("\nconnected!");
-
+  lcd.print("connected!");
   client.subscribe(mqtt_topic);
   // client.unsubscribe("/hello");
 }
@@ -121,11 +128,17 @@ int set_zero(int mem){
 }
 
 void messageReceived(String &topic, String &payload) {
-  Serial.println("incoming: " + topic + " - " + payload);
+  Serial.println("incoming: "+ payload);
+  lcd.clear();
+  delay(500);
+  lcd.print("incoming: "+ payload);
+  delay(1000);
   ////////////////////////////////////////////Subscribe here!//////////////////////////////////////////////
   if(String(payload) == "4"){
       set_zero(mem);
+      lcd.clear();
       Serial.println("90 Degree");
+      lcd.print("90 Degree");
       client.publish(mqtt_publish,"90 Degree");
       for (int i = 0; i < 128; i++)
       {
@@ -135,7 +148,9 @@ void messageReceived(String &topic, String &payload) {
       
     }else if (String(payload) == "3")
     {
+      lcd.clear();
       Serial.println("60 Degree");
+      lcd.print("60 Degree");
       set_zero(mem);
       client.publish(mqtt_publish,"60 Degree");
       for (int i = 0; i < 85; i++)
@@ -144,7 +159,9 @@ void messageReceived(String &topic, String &payload) {
       }
       mem = 3;
     }else if(String(payload) == "2"){
+      lcd.clear();
       Serial.println("45 Degree");
+      lcd.print("45 Degree");
       client.publish(mqtt_publish,"45 Degree");
       set_zero(mem);
       for (int i = 0; i < 64; i++)
@@ -153,7 +170,9 @@ void messageReceived(String &topic, String &payload) {
        }
       mem = 2;
     }else if(String(payload) == "1"){
+      lcd.clear();
       Serial.println("30 Degree");
+      lcd.print("30 Degree");
       client.publish(mqtt_publish,"30 Degree");
       set_zero(mem);
       for (int i = 0; i < 43; i++)
@@ -162,19 +181,22 @@ void messageReceived(String &topic, String &payload) {
       }
       mem = 1;
     }else if(String(payload) == "0"){
+      lcd.clear();
       Serial.println("0 Degree");
+      lcd.print("0 Degree");
       client.publish(mqtt_publish,"0 Degree");
       set_zero(mem);
       mem = 0;
     }else if(String(payload) == "00"){
+      lcd.clear();
       Serial.println("Terminate");
+      lcd.print("Terminate!");
       client.publish(mqtt_publish,"Terminated!");
       set_zero(mem);
       while (true){
 
       }
       mem = 0;
-      
     }
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -187,6 +209,11 @@ void setup(){
     WiFi.begin(ssid, pass);
     client.begin(mqtt_broker, MQTT_PORT, net);
     client.onMessage(messageReceived);
+{
+    lcd.begin(); // If you are using more I2C devices using the Wire library use lcd.begin(false)
+                 // this stop the library(LCD_I2C) from calling Wire.begin()
+    lcd.backlight();
+}
 
     connect();
 }
