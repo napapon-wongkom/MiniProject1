@@ -3,6 +3,7 @@
 #include <MQTT.h>
 #include <string.h>
 #include <LCD_I2C.h>
+#include <Adafruit_PCF8574.h>
 LCD_I2C lcd(0x27, 16, 2);
 //////////////////////////////////////////////////////////////////////////////
 #define STEP_PIN_1 19
